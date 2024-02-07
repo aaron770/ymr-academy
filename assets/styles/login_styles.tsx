@@ -44,10 +44,14 @@ export default StyleSheet.create({
     footerView: {
         flex: 1,
         alignItems: "center",
-        marginTop: 20
+        marginTop: 20,
+        marginLeft: 30,
+        marginRight: 30,
     },
     footerText: {
         fontSize: 16,
+        marginLeft: 30,
+        marginRight: 30,
         color: '#2e2e2d'
     },
     footerLink: {

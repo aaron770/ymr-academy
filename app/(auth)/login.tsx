@@ -1,52 +1,51 @@
 
 
+import { Link, useRouter } from "expo-router";
 import React, { useState } from 'react'
 import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import styles from './login_styles';
-import { firebase } from '../../firebase/config'
-import { useAuth } from "../../context/AuthProvider"//"../../../context/AuthProvider";
-import { StyleSheet } from 'react-native';
+import styles from '../../assets/styles/login_styles';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
+import { FIREBASE_AUTH  } from '../../config/firebase'
+import { useAuth } from "../../context/AuthProvider"//"../../../context/AuthProvider";
 
 export default function Login({navigation}) {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [loading, setLoading] = useState(false);
     const { setUser } = useAuth();
-    const onFooterLinkPress = () => {
-        //navigation.navigate('Registration')
-        // TODO: need to navigate to registration/ user creation
+    const router = useRouter();
+    const onFooterLinkPress = async () => {
+        setLoading(true);
+        const user = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
+        .then((response) => {
+            // navigate to userTYpe
+            setUser(response.user as any) 
+            router.push('userType');
+        })
+        .catch(error => {
+            alert(error)
+        });
     }
-
-    const onLoginPress = () => {
-        firebase
-            .auth()
-            .signInWithEmailAndPassword(email, password)
+    const onLoginPress = async () => {
+        try {
+            setLoading(true);
+            const user = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
             .then((response) => {
-                console.log('firestore response', response)
-                const uid = response.user.uid
-                const usersRef = firebase.firestore().collection('users')
-                usersRef
-                    .doc(uid)
-                    .get()
-                    .then(firestoreDocument => {
-                        if (!firestoreDocument.exists) {
-                            alert("User does not exist anymore.")
-                            return;
-                        }
-                        const user: any = firestoreDocument.data()
-                        // navigation.navigate('Home', {user: user})
-                        console.log('setting user and navigate')
-                        setUser({user});
-                        console.log('there is a user need to navigate if not context navigate')
-                    })
-                    .catch(error => {
-                        alert(error)
-                    });
+                console.log(response)
+                // TODO get document of user if not document then send user to setup
+                setUser(response?.user as any)
+                
             })
             .catch(error => {
                 alert(error)
-            })
+            });
+          } catch (error) {
+            console.error('There was an error logging in:', error);
+          } finally {
+            setLoading(false);
+          }
     }
     return (
         <View style={styles.container}>
@@ -55,7 +54,7 @@ export default function Login({navigation}) {
                 keyboardShouldPersistTaps="always">
                 <Image
                     style={styles.logo}
-                    source={require('../../../assets/icon.png')}
+                    source={require('../../assets/icon.png')}
                 />
                 <TextInput
                     style={styles.input}
@@ -82,8 +81,14 @@ export default function Login({navigation}) {
                     <Text style={styles.buttonTitle}>Log in</Text>
                 </TouchableOpacity>
                 <View style={styles.footerView}>
-                    <Text style={styles.footerText}>Don't have an account? <Text onPress={onFooterLinkPress} style={styles.footerLink}>Sign up</Text></Text>
+                    <Text style={styles.footerText}>Don't have an account? You can create an account with the above email and password</Text>
+                    
                 </View>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => onFooterLinkPress()}>
+                    <Text style={styles.buttonTitle}>Create account</Text>
+                </TouchableOpacity>
             </KeyboardAwareScrollView>
         </View>
     )

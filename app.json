@@ -6,5 +6,8 @@
     },
     "name": "expo-tab-router-exmaple",
     "slug": "expo-tab-router-exmaple"
+  },
+  "experiments": {
+    "typedRoutes": true
   }
 }

@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import { AuthProvider } from "../context/AuthProvider";
+import { Platform } from "react-native";
 
 export default function RootLayout() {
   return (
@@ -9,6 +10,15 @@ export default function RootLayout() {
           name="(tabs)"
           options={{
             headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="(auth)/login"
+          options={{
+            title: "",
+            headerShown: true,
+            headerTransparent: Platform.OS === "ios",
+            headerBlurEffect: "regular",
           }}
         />
         {/* <Stack.Screen
