@@ -21,6 +21,15 @@ export default function RootLayout() {
             headerBlurEffect: "regular",
           }}
         />
+        <Stack.Screen
+          name="(auth)/userType"
+          options={{
+            title: "Please pick a user type.",
+            headerShown: true,
+            headerTransparent: Platform.OS === "ios",
+            headerBlurEffect: "regular",
+          }}
+        />
         {/* <Stack.Screen
           name="other"
           options={{

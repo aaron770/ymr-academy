@@ -7,8 +7,7 @@ import { useRouter } from "expo-router";
 export default function UserType() {
     const router = useRouter();
     const onUserTypePress = (userType) => {
-        console.log('userType', userType)
-        router.replace("/account");
+        router.replace(`(aux)/user${userType}`);
     }
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", marginTop: 30 }}>

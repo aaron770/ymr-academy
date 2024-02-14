@@ -1,12 +1,23 @@
 import { StyleSheet } from 'react-native';
-
+import { Platform } from "react-native";
 export default StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center'
     },
-    title: {
-
+    center_container: {
+        flex: 1,
+        ...Platform.select({
+            ios: {
+                width: '100%',
+            },
+            android: {
+              width: '100%'
+            },
+            default: {
+              width: '50%'
+            }
+        })
     },
     logo: {
         flex: 1,

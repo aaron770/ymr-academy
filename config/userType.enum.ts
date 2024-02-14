@@ -1,5 +1,5 @@
 export enum userType {
-	TEACHER = "teacher",
-	STUDENT = "student",
+	TEACHER = "Teacher",
+	STUDENT = "Student",
 	// GUARDIAN = "Guadian"
 }
