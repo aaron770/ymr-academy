@@ -1,55 +1,64 @@
 interface Course {
-    description: {
-      name: string;
-      instructor: {
-        name: string;
+    description?: {
+      name?: string;
+      instructor?: {
+        name?: string;
       }
-      prerequisites: {
-        courses: string[];
+      prerequisites?: {
+        courses?: string[];
       }
     }
 }
-interface Exercise{
-    info: {
-      name: string;
-      description: string;
-      instructor: {
-        name: string;
-      }
-    }
-    type: String
-    challenge: {}
-    options:[]
-    answer: String
+interface ExerciseType {
+  type: 'voice' | 'multiChoiceVoice' | 'multiChoice'
+}
+interface Exercise {
+    // info?: {
+    //   name?: string;
+    //   description?: string;
+    //   instructor?: {
+    //     name?: string;
+    //   }
+    // }
+    id?: string;
+    stepId?: string;
+    type?: string;
+    language?: string;
+    level?: string;
+    challenge?: string;
+    options?:[];
+    answer?: string;
 }
 interface Step {
-    description: {
-
+    description?: string;
+    id?: string
+    preStep?: {
+        sound?: string;
+        image?: string;
+        text?: string;
     }
-    preStep: {
-        sound: {}
-        image:{
-        }
-        text: {}
-    }
-    setuptExercise: {
-        Exercise
-        format: String // todo
-        Onsucess: string //todo
-    }
-    postStep: {
-        sound: {}
-        image:{
-        }
-        text: {}
+    exercises?: Array<Exercise>;
+    postStep?: {
+      sound?: string;
+      image?: string;
+      text?: string;
     }
 
     
 }
-interface lesson {
-    steps: [
-
-    ]
+interface Lesson {
+  info?: {
+    name?: string;
+    description?: string;
+    language?: string;
+    level?: string
+    subject?: string;
+    instructor?: {
+      name?: string;
+      id?: string;
+    }
+  }
+    steps?: Array<Step>
 
     
 }

@@ -30,7 +30,7 @@ export default function RootLayout() {
             headerBlurEffect: "regular",
           }}
         />
-        {/* <Stack.Screen
+        <Stack.Screen
           name="other"
           options={{
             title: "",
@@ -38,7 +38,7 @@ export default function RootLayout() {
             headerTransparent: Platform.OS === "ios",
             headerBlurEffect: "regular",
           }}
-        /> */}
+        />
       </Stack>
     </AuthProvider>
   );

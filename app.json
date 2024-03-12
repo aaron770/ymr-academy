@@ -1,5 +1,13 @@
 {
   "expo": {
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Our app accesses your photos to let you upload photos to save."
+        }
+      ]
+    ],
     "scheme": "acme",
     "web": {
       "bundler": "metro"

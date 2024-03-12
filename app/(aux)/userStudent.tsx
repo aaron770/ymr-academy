@@ -87,5 +87,5 @@ export default function UserStudent() {
             {/* {need disclaimer Data} */}
         </KeyboardAwareScrollView>
     </View>
-);
+    );
 }

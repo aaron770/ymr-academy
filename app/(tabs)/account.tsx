@@ -9,7 +9,7 @@ export default function Accout() {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Text>Account</Text>
-      <Text>{ user && user.name }</Text>
+      <Text>{ user && user.displayName }</Text>
       <TouchableOpacity onPress={() => setUser(null)}>
         <Text>Log out</Text>
       </TouchableOpacity>

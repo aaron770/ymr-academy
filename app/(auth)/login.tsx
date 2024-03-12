@@ -36,8 +36,7 @@ export default function Login({navigation}) {
     const onLoginPress = async () => {
         try {
             setLoading(true);
-            const user = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
-            console.log('user logged in ',user?.user)
+            const user = await signInWithEmailAndPassword(FIREBASE_AUTH, email, password);
             getUserInformation(user?.user as User)
           } catch (error) {
             console.error('There was an error logging in:', Object.values(error));
@@ -49,47 +48,26 @@ export default function Login({navigation}) {
             } else if (Object.values(error).includes('auth/wrong-password')) {
                 //There was an error logging in: ["auth/wrong-password", {}, "FirebaseError"]
                 alert('You have neterrred an incorrect password.')
+            } else if (Object.values(error).includes('auth/user-not-found')) {
+                //There was an error logging in: ["auth/wrong-password", {}, "FirebaseError"]
+                alert('We could not find your user.')
             }
           } finally {
             setLoading(false);
           }
     }
     const getUserInformation = async (user: User) => {
-        console.log('userCollectionRef before q')
+
         // TODO get document of user if not document then send user to setup
         const userCollectionRef = await getDoc(doc(FIRESTORE_DB, `users/${user.uid}`));
-        console.log('userCollectionRef after q', `users/${user.uid}`, (userCollectionRef).data())
+
         if ( (userCollectionRef).exists()) {
-            // setUser((userCollectionRef).data() as User)
-            console.log('no docs')
-            setUser(user as User)
+            setUser((userCollectionRef).data() as User)
+            // setUser(user as User)
         } else {
             console.log('no docs')
             setUser(user as User)
         }
-        // const unsubscribe = onSnapshot(q, (users: DocumentData) => {
-        //     const messages = users.docs.map((doc) => {
-        //             console.log('doc.data()', doc.data())
-        //           return { id: doc.id, ...doc.data() };
-        //         });
-        //     console.log('users?.docs', users)
-        //     if (users?.docs?.length < 1) {
-        //         console.log('no docs')
-        //         setUser(user as User)
-        //     } else {
-        //         const userInDocs = users?.docs.filter((userDoc) => {
-        //             userDoc.uid === user.uid;
-        //         })
-        //         console.log('yes docs', userInDocs)
-
-        //         setUser(userInDocs as User)
-        //     }
-            // const messages = users.docs.map((doc) => {
-            //     setUser(user?.user as User)
-            //   return { id: doc.id, ...doc.data() };
-            // });
-        
-        // })
     }
     return (
         <View style={styles.container}>

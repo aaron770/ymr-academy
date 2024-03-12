@@ -20,6 +20,7 @@ https://stackoverflow.com/questions/55311228/how-to-remove-warning-async-storage
 
 ## 📝 TODO
 ```
+imgage upload https://github.com/machadop1407/firebase-file-upload
 Check if user already exist with type of user 
 If exist home to the type of user
 Else go User choice page
