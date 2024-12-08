@@ -43,8 +43,6 @@ interface Step {
       image?: string;
       text?: string;
     }
-
-    
 }
 interface Lesson {
   info?: {

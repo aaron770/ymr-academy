@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
+import { addExerciseToDoc } from '../../services/exerciseService';
 
 export const counterSlice = createSlice({
   name: 'exercises',
@@ -22,8 +23,11 @@ export const counterSlice = createSlice({
         state.value.steps.push(action)
     },
     addExercise: (state, action: any) => {
+      console.log('action.stepId', action.stepId)
         if(action.stepId) {
             state.value.steps.find( step => step.id === action.stepId).exercises.push(action)
+            console.log('action before upload', action)
+            addExerciseToDoc(action)
         }
     }
     // editExercise: (state, action: PayloadAction<Exercise>) => {

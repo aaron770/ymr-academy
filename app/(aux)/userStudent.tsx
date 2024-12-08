@@ -38,7 +38,7 @@ export default function UserStudent() {
 
         }
         
-      };
+    };
   return (
     <View style={styles.container}>
         

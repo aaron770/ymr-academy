@@ -25,3 +25,6 @@ Check if user already exist with type of user
 If exist home to the type of user
 Else go User choice page
 ```
+TODO add serivce for add exercise
+TODO class should only take a step ID
+TODO step should only take a an exerciseID

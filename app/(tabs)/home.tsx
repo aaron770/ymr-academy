@@ -7,11 +7,15 @@ export default function Home() {
 
   const createExercise = () => {
     console.log('creatExercise')
-    router.push('(aux)/createStep');
+    router.push(`(aux)/createStep/${1234}`);
+  }
+  const gotoExercise = () => {
+    console.log('creatExercise')
+    router.push(`(aux)/studentExercise/${1234}`); 
   }
   const createClass = () => {
     console.log('creatClass')
-    router.push('(tabs)/createClass');
+    router.push('(tabs)/createLesson');
   }
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -24,6 +28,12 @@ export default function Home() {
           style={styles.button}
           onPress={() => createClass()}>
           <Text style={styles.buttonTitle}>Set up class.</Text>
+      </TouchableOpacity>
+      {/* TODO: move to exercise */}
+      <TouchableOpacity
+          style={styles.button}
+          onPress={() => gotoExercise()}>
+          <Text style={styles.buttonTitle}>go to exercise.</Text>
       </TouchableOpacity>
     </View>
   );

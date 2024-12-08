@@ -1,35 +1,66 @@
 import { Modal, View, Text, Pressable, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useEffect, useState } from 'react';
-import generalStyles from '../../assets/styles/login_styles';
+import generalStyles from '../../../../assets/styles/login_styles';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
-import { addExercise, addStep } from '../../context/reducers/classCreationReducer';
+import { addExercise, addStep } from '../../../../context/reducers/classCreationReducer';
+import { useLocalSearchParams } from 'expo-router';
+import { addExerciseToDoc } from '../../../../services/exerciseService';
 
-
+// interface Step {
+//   description?: string;
+//   id?: string
+//   preStep?: {
+//       sound?: string;
+//       image?: string;
+//       text?: string;
+//   }
+//   exercises?: Array<Exercise>;
+//   postStep?: {
+//     sound?: string;
+//     image?: string;
+//     text?: string;
+//   }
+// }
+// id?: string;
+//     stepId?: string;
+//     type?: string;
+//     language?: string;
+//     level?: string;
+//     challenge?: string;
+//     options?:[];
+//     answer?: string;
 /*
   a step has multiple Exercises 
 */
 export default function CreatStep({ isVisible, step = undefined, onClose, onSubmit }) {
+const { stepId } = useLocalSearchParams();
   let nextExercise = 0;
-  let currentStep: Step;
+  // let currentStep: Step;
+  const [currentStepId, setCurrentStepId] = useState<string>('')
   const [description, setDescription] = useState<Step["description"]>('')
-  const [preStep, setPreStep] = useState<Step["preStep"]>({})
+  const [preStep, setPreStep] = useState<Step["preStep"]>({sound:'',image:'',text:''})
   // const [setuptExercise, setSetuptExercise] = useState<Exercise[]>([])
   const [exercises, setExercises] = useState<Exercise[]>([])
-  const [exercise, setExercise] = useState<Exercise>({})
+  const [exercise, setExercise] = useState<Exercise>({id:'', stepId: '', type: '', language:'', level:'', challenge:'', options: [], answer: ''})
   const [exerciseType, setExerciseType] = useState<ExerciseType["type"]>('voice');
-  const [postStep, setPostStep] = useState<Step["postStep"]>({})
+  const [postStep, setPostStep] = useState<Step["postStep"]>({sound:'',image:'',text:''})
 
   //inisial step need to move to parent
-  useEffect(() => {
-    currentStep = {id: uuidv4()};
-    addStep(currentStep)
-  },[])
+  // useEffect(() => {
+    
+  //   console.log('stepSlug', stepId)
+  //   setCurrentStepId(stepId ? {id: stepId} : {id: uuidv4()});
+  //   addStep(currentStep)
+  // },[])
   
   const handlePreStepChange = e => {
     const { name, value } = e;
+    console.log('handlePreStepChange name', name)
+    console.log('handlePreStepChange value', value)
+    if(!value) {return;}
     setPreStep(prevState => ({
         ...prevState,
         [name]: value
@@ -42,17 +73,21 @@ export default function CreatStep({ isVisible, step = undefined, onClose, onSubm
     // exercise.language
     // exercise.options
     // exercise.type
+    exercise.language = "hebrew";
+    setExerciseType("voice");
+    console.log('what is happeneing')
     const exerciseToAdd  = { 
       id: uuidv4(), 
-      stepId: currentStep.id, 
-      type: exerciseType, 
+      stepId: stepId.toString() || uuidv4(),
+      type: exerciseType,
       ...exercise }
-    setExercises([
-      ...exercises,
-      exerciseToAdd
-    ]);
-    addExercise(exercise as any);
-    setExercise({})
+    // setExercises([
+    //   ...exercises,
+    //   exerciseToAdd
+    // ]);
+    //addExercise(exerciseToAdd as any);
+    // setExercise({})
+    addExerciseToDoc(exerciseToAdd);
   }
 
   const pickImage = async (step) => {
@@ -152,6 +187,7 @@ export default function CreatStep({ isVisible, step = undefined, onClose, onSubm
             </TouchableOpacity>
           </View>
           <View >
+          {/* need to change name from sound */}
             <TextInput
                 style={generalStyles.input}
                 placeholder='Describe your Lesson'
@@ -171,11 +207,23 @@ export default function CreatStep({ isVisible, step = undefined, onClose, onSubm
                 placeholder='Describe your Lesson'
                 placeholderTextColor="#aaaaaa"
                 onChangeText={(text) => setExercise({challenge: text})}
-                value={preStep.text}
+                value={exercise.challenge}
                 underlineColorAndroid="transparent"
                 autoCapitalize="none"
             />
           </View>
+          <View >
+            <TouchableOpacity
+                style={generalStyles.button}
+                onPress={() => addExerciseToLesson(exercise)}>
+                <Text style={generalStyles.buttonTitle}>Add Exercise</Text>
+            </TouchableOpacity>
+          </View>
+          {exercises.map((r) => {
+          return (
+            <Text key={r.id} style={styles.title}>exercise id.{r.id}, {r.challenge}</Text>
+          );
+        })}
           <View >
             <Text style={styles.title}>Setup what your student will see after the Excersise.</Text>
             <TextInput
@@ -183,7 +231,7 @@ export default function CreatStep({ isVisible, step = undefined, onClose, onSubm
                 placeholder='Describe your Lesson'
                 placeholderTextColor="#aaaaaa"
                 onChangeText={(text) => handlePostStepChange({name: "text", value: text})}
-                value={preStep.text}
+                value={postStep.text}
                 underlineColorAndroid="transparent"
                 autoCapitalize="none"
             />
@@ -232,7 +280,7 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
     },
     title: {
-      color: '#fff',
+      // color: '#fff',
       fontSize: 16,
     },
     pickerContainer: {

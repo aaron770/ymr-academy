@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAuth } from "../../../context/AuthProvider";
 import SetupStepModal from "../../../components/setupStepModal" // "../.././components/";
 import { useRouter } from "expo-router";
+import { v4 as uuidv4 } from 'uuid';
 
 // import { UserCredential } from "firebase/auth";
 // import { setDoc, doc } from "firebase/firestore";
@@ -12,7 +13,7 @@ import { useRouter } from "expo-router";
 // import { userType } from "../../../config/userType.enum";
 // import { User } from "../../../interfaces/users.interface";
 
-export default function CreateClass() {
+export default function CreateLesson() {
   const router = useRouter();
   let nextStepId = 0;
 
@@ -36,10 +37,11 @@ const handleInfoChange = e => {
 };
 
 const addStep = (step) => {
-  router.push('(aux)/createStep');
+  const stepId = uuidv4()
+  router.push(`(aux)/createStep/${stepId}`);
   setSteps([
     ...steps,
-    { id: nextStepId++, ...step }
+    { id: stepId, ...step }
   ]);
 }
 
@@ -48,7 +50,9 @@ const removeStep = () => {
 }
 
 const showStepSettup = () => {
-  router.push('(aux)/createStep');
+  // TODO: get step Id 
+  const stepId = uuidv4()
+  router.push(`(aux)/createStep/${stepId}`);
   // setIsModalVisible(true)
 }
 const onModalClose = () => {
