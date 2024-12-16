@@ -6,7 +6,7 @@ const $exerciseCollection = "exercise";
 export const addExerciseToDoc = async (exerciseData) => {
     try {
       console.log('exerciseData in service', exerciseData)
-    const docRef = await setDoc(doc(FIRESTORE_DB, `${$exerciseCollection}/${exerciseData.uid}`), 
+    const docRef = await setDoc(doc(FIRESTORE_DB, `${$exerciseCollection}/${exerciseData.id}`), 
     exerciseData,
       { merge: true }
     )

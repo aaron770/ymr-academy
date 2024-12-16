@@ -5,9 +5,11 @@ import { Platform } from "react-native";
 import * as Device from "expo-device";
 import { readBlobAsBase64 } from "./readBlobAsBase64";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { HebrewVowels } from "./hebrewVowels";
 
 export const transcribeSpeech = async (
-  audioRecordingRef: MutableRefObject<Audio.Recording>
+  audioRecordingRef: MutableRefObject<Audio.Recording>,
+  phrase?: string
 ) => {
   try {
     await Audio.setAudioModeAsync({
@@ -35,8 +37,6 @@ export const transcribeSpeech = async (
 
       const dataUrl = base64Uri;
 
-      audioRecordingRef.current = new Audio.Recording();
-
       const audioConfig = {
         encoding:
           Platform.OS === "android"
@@ -51,44 +51,35 @@ export const transcribeSpeech = async (
             ? 48000
             : 41000,
         languageCode: "en-US",
+        audioChannelCount: 2,
+        enableSeparateRecognitionPerChannel: true,
       };
 
       if (recordingUri && dataUrl) {
-        const rootOrigin =
-          Platform.OS === "android"
-            ? "10.0.2.2"
-            : Device.isDevice
-            ? process.env.LOCAL_DEV_IP || "localhost"
-            : "localhost";
-            const serverUrl = `http://127.0.0.1:5001`
-        // const serverUrl = `http://${rootOrigin}:4000`;
-        // const serverResponse = await fetch(`${serverUrl}/speechToText`, {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify({ audioUrl: dataUrl, config: audioConfig }),
-        // })
-        //   .then((res) => res.json())
-        //   .catch((e: Error) => console.error(e));
+        const deData = {
+          file: dataUrl,
+          languageCode:  "en",
+        }
+        if (phrase) {
+          const obj = HebrewVowels.find(o => o.Vowel == phrase);
+          deData['prompt'] = `I am testing the pronounciation of syllable *${obj.English}*`
+        }
 
-
+          // https://us-central1-torah-academy.cloudfunctions.net/speechToTextValidate
           const functions = getFunctions();
-          const addMessage = httpsCallable(functions, 'speechToText');
-          const serverResponse = await addMessage({ audioUrl: dataUrl, config: audioConfig })
-            .then((result) => {
-              // Read result of the Cloud Function.
-              /** @type {any} */
-              const data: any = result.data;
-              console.log('result', result)
-              return  data.text;
-            }).catch((e: Error) => console.error(e));;
-            
-        const results = serverResponse?.results;
+          const addMessageValidate = httpsCallable(functions, 'speechToTextValidate');
+
+          const serverResponse = await addMessageValidate(deData)
+          .then((result) => {
+            // Read result of the Cloud Function.
+            /** @type {any} */
+            const data: any = result?.data;
+            return  data;
+          }).catch((e: Error) => console.error(e));
+
+        const results = serverResponse?.text;
         if (results) {
-          const transcript = results?.[0].alternatives?.[0].transcript;
-          if (!transcript) return undefined;
-          return transcript;
+          return results;
         } else {
           console.error("No transcript found");
           return undefined;
