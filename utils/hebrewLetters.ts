@@ -1,7 +1,7 @@
 export const HebrewLetters = [
     {"hebrew": "א", "transliteration": "Aleph"},
-    {"hebrew": "בּ", "transliteration": ["Bet", "Beit"]}, //beis veis
-    {"hebrew": "ב", "transliteration": ["vet", "veit"]},
+    {"hebrew": "בּ", "transliteration": ["Bet", "Beit", "beis"]}, //beis veis
+    {"hebrew": "ב", "transliteration": ["vet", "veit", "vase"]},
     {"hebrew": "ג", "transliteration": "Gimel"},
     {"hebrew": "ד", "transliteration": "Dalet"},
     {"hebrew": "ה", "transliteration": "He"},
@@ -27,6 +27,7 @@ export const HebrewLetters = [
     {"hebrew": "ץ", "transliteration": ["Final Tsadi", "Final Zadi"]},
     {"hebrew": "ק", "transliteration": "Kuf"},
     {"hebrew": "ר", "transliteration": "Resh"},
+    {"hebrew": "ש", "transliteration": "Shin"},
     {"hebrew": "שׁ", "transliteration": "Shin"},
     {"hebrew": "שׂ", "transliteration": "Sin"},
     {"hebrew": "תּ", "transliteration": "Tav"},

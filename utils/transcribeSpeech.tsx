@@ -6,10 +6,14 @@ import * as Device from "expo-device";
 import { readBlobAsBase64 } from "./readBlobAsBase64";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { HebrewVowels } from "./hebrewVowels";
+import { HebrewLetters } from "./hebrewLetters";
 
 export const transcribeSpeech = async (
   audioRecordingRef: MutableRefObject<Audio.Recording>,
-  phrase?: string
+  
+  phrase?: string,
+  typeOfExercise?,
+  
 ) => {
   try {
     await Audio.setAudioModeAsync({
@@ -60,9 +64,27 @@ export const transcribeSpeech = async (
           file: dataUrl,
           languageCode:  "en",
         }
+        //type
         if (phrase) {
+          console.log(typeOfExercise)
+          if(typeOfExercise == 'hebrewVowel') {
           const obj = HebrewVowels.find(o => o.Vowel == phrase);
-          deData['prompt'] = `I am testing the pronounciation of syllable *${obj.English}*`
+          deData['prompt'] = `I am testing the pronounciation of syllable *${obj.English}*`;
+          }
+          if(typeOfExercise == 'hebrewLetter') {
+            const obj = HebrewLetters.find(o => o.hebrew == phrase);
+            console.log('hebrew object', obj)
+            if(Array.isArray(obj.transliteration)) {
+              let prompt = `The hebrew letter is`;
+              obj.transliteration.forEach((transliteration) => {
+                prompt += ` *${transliteration}*`
+              })
+              deData['prompt'] = prompt;
+            }
+            if(typeof obj.transliteration === 'string') {
+              deData['prompt'] = `The hebrew letter is *${obj.transliteration}*`;
+            }
+          }
         }
 
           // https://us-central1-torah-academy.cloudfunctions.net/speechToTextValidate

@@ -1,4 +1,4 @@
-import { View, Text,  Button, StyleSheet, Platform, ActivityIndicator  } from "react-native";
+import { View, Text,  Button, StyleSheet, Platform, ActivityIndicator, TouchableOpacity  } from "react-native";
 // import styles from '../../../../assets/styles/login_styles';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Audio } from 'expo-av';
@@ -8,7 +8,10 @@ import * as Sharing from 'expo-sharing';
 import { transcribeSpeech } from "../../../../utils/transcribeSpeech";
 import { recordSpeech } from "../../../../utils/recordSpeech";
 import { HebrewVowels } from "../../../../utils/hebrewVowels";
-export default function SpeechToText({ studentExercise, type='hebrew' }) {
+import { HebrewLetters } from "../../../../utils/hebrewLetters";
+import Ionicons from '@expo/vector-icons/Ionicons'
+
+export default function SpeechToText({ studentExercise, type }) {
   const { stepId } = useLocalSearchParams();
   const router = useRouter();
   const [recording, setRecording] = useState(null);
@@ -17,7 +20,7 @@ export default function SpeechToText({ studentExercise, type='hebrew' }) {
   const [answers, setAnswers] = useState([]);
   // const [studentExercise, setStudentExercise] = useState("יַ,יָ,יִ,יֵ,יֶ,יֹ,יוּ,יֻ,יְ,טַ,טָ,טִ,טֵ,טֶ,טֹ,טוּ,טֻ,טְ,חַ,חָ,חִ,חֵ,חֶ,חֹ,חוּ,חֻ,חְ,זַ,זָ,זִ,זֵ,זֶ,זֹ,זוּ,זֻ,זְ,וַ,וָ,וִ,וֵ,וֶ,וֹ,ווּ,וֻ,וְ,הַ,הָ,הִ,הֵ,הֶ,הֹ,הוּ,הֻ,הְ,דַ,דָ,דִ,דֵ,דֶ,דֹ,דוּ,דֻ,דְ,גַ,גָ,גִ,גֵ,גֶ,גֹ,גוּ,גֻ,גְ,בַּ,בָּ,בִּ,בֵּ,בֶּ,בֹּ,בּוּ,בֻּ,בְּ,בַ,בָ,בִ,בֵ,בֶ,בֹ,בוּ,בֻ,בְ,אַ,אָ,אִ,אֵ,אֶ,אֹ,אוּ,אֻ,אְ");
   const [currentChallengeNum, setCurrentChallengeNum] = useState(0);
-  const currentChallenge = studentExercise.split(',')[currentChallengeNum];
+  const currentChallenge = studentExercise[currentChallengeNum];
   const [correctAnswer, setcorrectAnswer] = useState(null);
   //for debounce button
   const [isWaiting, setIsWaiting] = useState(false);
@@ -27,7 +30,7 @@ export default function SpeechToText({ studentExercise, type='hebrew' }) {
   // const isWebFocused = useWebFocus();
   const audioRecordingRef = useRef(new Audio.Recording());
   const webAudioPermissionsRef = useRef<MediaStream | null>(null);
-
+  console.log('exercise type', type)
   // useEffect(() => {
   //   if (isWebFocused) {
   //     const getMicAccess = async () => {
@@ -51,8 +54,16 @@ export default function SpeechToText({ studentExercise, type='hebrew' }) {
   }
 
   function getPathFromState(phrase: string) {
-    const obj = HebrewVowels.find(o => o.Vowel == phrase);
-    return obj.English;
+    if(type == 'hebrewLetter') {
+      const obj = HebrewLetters.find(o => o?.hebrew == phrase);
+      return obj.transliteration;
+    }
+    if(type == 'hebrewVowel') {
+      const obj = HebrewVowels.find(o => o?.Vowel == phrase);
+      return obj.English;
+    }
+  
+
  }
 
  const debouncedRecordOnPress = () => {
@@ -140,7 +151,7 @@ export default function SpeechToText({ studentExercise, type='hebrew' }) {
     setIsTranscribing(true);
     try {
       console.log('speech to text')
-      const speechTranscript = await transcribeSpeech(audioRecordingRef, currentChallenge);
+      const speechTranscript = await transcribeSpeech(audioRecordingRef, currentChallenge, type);
       console.log('speechTranscript', speechTranscript)
       setTranscribedSpeech(speechTranscript || "");
       let updatedRecordings = [...recordings];
@@ -153,10 +164,28 @@ export default function SpeechToText({ studentExercise, type='hebrew' }) {
       // });
       setRecordings(updatedRecordings);
       audioRecordingRef.current = new Audio.Recording();
-      console.log('current challenge', getPathFromState(currentChallenge)?.toLowerCase())
-      console.log('transcribedSpeech', speechTranscript?.toLowerCase())
-      console.log('current challenge', getPathFromState(currentChallenge)?.toLowerCase() == speechTranscript?.toLowerCase())
-      const isCorrect = speechTranscript?.toLowerCase().includes(getPathFromState(currentChallenge)?.toLowerCase())
+      // console.log('current challenge', getPathFromState(currentChallenge)?.toLowerCase())
+      // console.log('transcribedSpeech', speechTranscript?.toLowerCase())
+      // console.log('current challenge', getPathFromState(currentChallenge)?.toLowerCase() == speechTranscript?.toLowerCase())
+      //HebrewLetters
+      let isCorrect;
+      if(type == 'hebrewLetter') {
+        if(Array.isArray(getPathFromState(currentChallenge))) {
+          (getPathFromState(currentChallenge) as any).forEach((transliteration) => {
+            console.log('transliteration', transliteration)
+            console.log('speechTranscript', speechTranscript)
+            if(speechTranscript?.toLowerCase().includes(transliteration?.toLowerCase())) {
+              isCorrect = true;
+            }
+          });
+        } else {
+          isCorrect = (speechTranscript?.toLowerCase().includes((getPathFromState(currentChallenge) as any) .toLowerCase()))
+        }
+
+      }
+      if(type == 'hebrewVowel') {
+        isCorrect = speechTranscript?.toLowerCase().includes(getPathFromState(currentChallenge)?.toLowerCase())
+      }
       setcorrectAnswer(isCorrect);
       setAnswers([...answers, {num: currentChallengeNum, isCorrect: isCorrect }]);
       incrementExcerse();
@@ -192,12 +221,18 @@ export default function SpeechToText({ studentExercise, type='hebrew' }) {
       <Text>{message}</Text>
       <Text>currentChallenge</Text>
       <Text style={{ fontSize: 50, paddingBottom: 30 }}>{currentChallenge}</Text>
-      <Button
+      {/* <Button
         title={recording ? 'Stop Recording' : 'Start Recording'}
-        onPress={recording ? stopRecording : debouncedRecordOnPress} />
-      {currentChallengeNum != 0 && correctAnswer == null && <View style={{ paddingTop: 20 }}><ActivityIndicator size="large" /></View>}
+        onPress={recording ? stopRecording : debouncedRecordOnPress} /> */}
+      <TouchableOpacity
+        onPress={recording? stopRecording : debouncedRecordOnPress}
+        style={[ styles.recordButton, recording ? styles.recordingButton : styles.notRecordingButton,
+        ]}>
+        <Ionicons name={recording ? 'stop' : 'mic'} size={24} color="white"/>
+      </TouchableOpacity>
+      {currentChallengeNum != 0 && correctAnswer == null && !recording && <View style={{ paddingTop: 20 }}><ActivityIndicator size="large" /></View>}
       {correctAnswer != null && <Text style={{ fontSize: 50, color: 'green' }}>{correctAnswer ? 'You are correct': 'Try again'}</Text> }
-      
+
       {/* {getRecordingLines()} */}
 
       <StatusBar style="auto" />
@@ -223,5 +258,18 @@ const styles = StyleSheet.create({
   },
   button: {
     margin: 16
+  },
+  recordButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  recordingButton: {
+    backgroundColor: '#ff4444'
+  },
+  notRecordingButton:{
+    backgroundColor: '#4444ff'
   }
 });

@@ -5,7 +5,7 @@ import generalStyles from '../assets/styles/login_styles';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
-import { addExercise, addStep } from '../context/reducers/classCreationReducer';
+// import { addExercise, addStep } from '../context/reducers/classCreationReducer';
 
 
 /*
@@ -25,7 +25,7 @@ export default function SetupStepModal({ isVisible, step = undefined, onClose, o
   //inisial step need to move to parent
   useEffect(() => {
     currentStep = {id: uuidv4()};
-    addStep(currentStep)
+    // addStep(currentStep)
   },[])
   
   const handlePreStepChange = e => {
@@ -51,7 +51,7 @@ export default function SetupStepModal({ isVisible, step = undefined, onClose, o
       ...exercises,
       exerciseToAdd
     ]);
-    addExercise(exercise as any);
+    // addExercise(exercise as any);
     setExercise({})
   }
 
