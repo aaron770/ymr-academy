@@ -7,8 +7,8 @@ export const HebrewLetters = [
     {"hebrew": "ה", "transliteration": "He"},
     {"hebrew": "ו", "transliteration": "Vav"},
     {"hebrew": "ז", "transliteration": "Zayin"},
-    {"hebrew": "ח", "transliteration": "Chet"},
-    {"hebrew": "ט", "transliteration": "Tet"},
+    {"hebrew": "ח", "transliteration": ["Chet", "ches"]},
+    {"hebrew": "ט", "transliteration": ["Tet", "tes"]},
     {"hebrew": "י", "transliteration": "Yod"},
     {"hebrew": "כּ", "transliteration": "Kaf"},
     {"hebrew": "כ", "transliteration": "Chaf"},
@@ -23,13 +23,21 @@ export const HebrewLetters = [
     {"hebrew": "פּ", "transliteration": "Pay"},
     {"hebrew": "פ", "transliteration": "Fey"},
     {"hebrew": "ף", "transliteration": ["Final Pey", "Final Fey"]},
-    {"hebrew": "צ", "transliteration": ["Tsadi", "Zadi"]},
+    {"hebrew": "צ", "transliteration": ["Tsadi", "Zadi", "Sadik", "Tsadik"]},
     {"hebrew": "ץ", "transliteration": ["Final Tsadi", "Final Zadi"]},
     {"hebrew": "ק", "transliteration": "Kuf"},
     {"hebrew": "ר", "transliteration": "Resh"},
     {"hebrew": "ש", "transliteration": "Shin"},
     {"hebrew": "שׁ", "transliteration": "Shin"},
     {"hebrew": "שׂ", "transliteration": "Sin"},
-    {"hebrew": "תּ", "transliteration": "Tav"},
+    {"hebrew": "תּ", "transliteration": ["Tav", "tough"]},
     {"hebrew": "ת", "transliteration": "Saf"}
 ]
+export const  ashkenazify = function(phrase) {
+    const phrases = [phrase]
+    let ashkenaz = phrase.replace("ו", "וי");
+    ashkenaz = ashkenaz.replaceAll("ת", "ס");
+
+    phrases.push(ashkenaz)
+    return phrases;
+}

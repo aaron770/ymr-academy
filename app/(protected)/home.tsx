@@ -1,8 +1,17 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import styles from '../../assets/styles/login_styles';
 import { useRouter } from "expo-router";
+// import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Drawer } from 'expo-router/drawer';
+
+import {useState } from 'react';
+// const Drawer = createDrawerNavigator();
 
 export default function Home() {
+  const [drawerItems, setDrawerItems] = useState([
+    { name: 'Create exercise', route: `(aux)/createStep/${1234}`, options: {drawerLabel: 'Home',title: 'overview',} },
+    { name: 'Exercise', route: '`(aux)/studentExercise/${1234}`', options: {drawerLabel: 'Home',title: 'overview',} },
+  ]);
   const router = useRouter();
 
   const createExercise = () => {
@@ -15,10 +24,15 @@ export default function Home() {
   }
   const createClass = () => {
     console.log('creatClass')
-    router.push('(tabs)/createLesson');
+    router.push('(protected)/createLesson');
   }
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      {/* <Drawer>
+        {drawerItems.map((item) => (
+          <Drawer.Screen key={item.name} name={item.name} options={item.options} />
+        ))}
+      </Drawer> */}
       <TouchableOpacity
           style={styles.button}
           onPress={() => createExercise()}>

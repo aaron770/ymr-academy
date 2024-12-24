@@ -1,13 +1,14 @@
 import { Modal, View, Text, Pressable, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import generalStyles from '../../../../assets/styles/login_styles';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import { v4 as uuidv4 } from 'uuid';
-import { addExercise, addStep } from '../../../../context/reducers/classCreationReducer';
 import { useLocalSearchParams } from 'expo-router';
 import { addExerciseToDoc } from '../../../../services/exerciseService';
+import { Picker } from '@react-native-picker/picker';
+import {excerciseTypes, Exercise, Step} from '../../../../interfaces/classes'
 
 // interface Step {
 //   description?: string;
@@ -45,7 +46,8 @@ const { stepId } = useLocalSearchParams();
   // const [setuptExercise, setSetuptExercise] = useState<Exercise[]>([])
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [exercise, setExercise] = useState<Exercise>({id:'', stepId: '', type: '', language:'', level:'', challenge:'', options: [], answer: ''})
-  const [exerciseType, setExerciseType] = useState<ExerciseType["type"]>('voice');
+  const [exerciseType, setExerciseType] = useState<Exercise["type"]>('');
+  const exerciseTypePickerRef = useRef();
   const [postStep, setPostStep] = useState<Step["postStep"]>({sound:'',image:'',text:''})
 
   //inisial step need to move to parent
@@ -74,12 +76,13 @@ const { stepId } = useLocalSearchParams();
     // exercise.options
     // exercise.type
     exercise.language = "hebrew";
-    setExerciseType("voice");
+    // setExerciseType("voice");
     console.log('what is happeneing')
     const exerciseToAdd  = { 
       id: uuidv4(), 
-      stepId: stepId.toString() || uuidv4(),
       type: exerciseType,
+      preStep: preStep.text,
+      postStep: postStep.text,
       ...exercise }
     // setExercises([
     //   ...exercises,
@@ -116,7 +119,7 @@ const { stepId } = useLocalSearchParams();
   };
   const handlePostStepChange = e => {
     const { name, value } = e;
-    setPreStep(prevState => ({
+    setPostStep(prevState => ({
         ...prevState,
         [name]: value
     }));
@@ -147,6 +150,19 @@ const { stepId } = useLocalSearchParams();
               <MaterialIcons name="close" color="#fff" size={22} />
             </Pressable>
           </View>
+          <View style={styles.title}>
+            <Text style={styles.title}>Please select an exercise type.</Text>
+            <Picker
+              ref={exerciseTypePickerRef}
+              //selectedvalue={exerciseType}
+              onValueChange={setExerciseType}
+              style={styles.title}>
+              {excerciseTypes?.map((exer)=>{
+                return <Picker.Item key={exer?.value} label={exer?.label} value={exer?.value}/>
+              })}
+              
+            </Picker>
+          </View>
           <View >
             <Text style={styles.title}>Please describe your course.</Text>
             <TextInput
@@ -163,7 +179,7 @@ const { stepId } = useLocalSearchParams();
             <Text style={styles.title}>Setup what your student will see before the Excersise.</Text>
             <TextInput
                 style={generalStyles.input}
-                placeholder='Describe your Lesson'
+                placeholder='Student intro to excercise'
                 placeholderTextColor="#aaaaaa"
                 onChangeText={(text) => handlePreStepChange({name: "text", value: text})}
                 value={preStep.text}
@@ -171,7 +187,7 @@ const { stepId } = useLocalSearchParams();
                 autoCapitalize="none"
             />
           </View>
-          <View >
+          {/* <View >
             <TouchableOpacity
                 style={generalStyles.button}
                 onPress={() => pickImage("preStep")}>
@@ -187,21 +203,21 @@ const { stepId } = useLocalSearchParams();
             </TouchableOpacity>
           </View>
           <View >
-          {/* need to change name from sound */}
             <TextInput
                 style={generalStyles.input}
-                placeholder='Describe your Lesson'
+                placeholder='Sound user will success effect'
                 placeholderTextColor="#aaaaaa"
                 onChangeText={(sound) => handlePreStepChange({name: "sound", value: sound})}
                 value={preStep.sound}
                 underlineColorAndroid="transparent"
                 autoCapitalize="none"
             />
-          </View>
+          </View> */}
           <View >
             <Text style={styles.title}>Setup the Excersise.</Text>
             {/* TODO: set up conditons for different types of exercises */}
-            <Text style={styles.title}>Please leave a list of values seperated by a "," such as A,B,C,D.</Text>
+            <Text style={styles.title}>Please leave a list of values seperated by a "," such as אַ,אָ,אִ,אֵ,אֶ,אֹ,אוּ,אֻ,אְ.</Text>
+            {/* {typeof exercise.challenge == "string" &&  */}
             <TextInput
                 style={generalStyles.input}
                 placeholder='Describe your Lesson'
@@ -212,13 +228,6 @@ const { stepId } = useLocalSearchParams();
                 autoCapitalize="none"
             />
           </View>
-          <View >
-            <TouchableOpacity
-                style={generalStyles.button}
-                onPress={() => addExerciseToLesson(exercise)}>
-                <Text style={generalStyles.buttonTitle}>Add Exercise</Text>
-            </TouchableOpacity>
-          </View>
           {exercises.map((r) => {
           return (
             <Text key={r.id} style={styles.title}>exercise id.{r.id}, {r.challenge}</Text>
@@ -228,7 +237,7 @@ const { stepId } = useLocalSearchParams();
             <Text style={styles.title}>Setup what your student will see after the Excersise.</Text>
             <TextInput
                 style={generalStyles.input}
-                placeholder='Describe your Lesson'
+                placeholder='Addendum'
                 placeholderTextColor="#aaaaaa"
                 onChangeText={(text) => handlePostStepChange({name: "text", value: text})}
                 value={postStep.text}
@@ -236,7 +245,7 @@ const { stepId } = useLocalSearchParams();
                 autoCapitalize="none"
             />
           </View>
-          <View >
+          {/* <View >
             <TouchableOpacity
                 style={generalStyles.button}
                 onPress={() => pickImage("postStep")}>
@@ -251,7 +260,13 @@ const { stepId } = useLocalSearchParams();
                 onPress={() => pickImage("postStep")}>
                 <Text style={generalStyles.buttonTitle}>Add Audio</Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
+          <View >
+            <TouchableOpacity
+                style={generalStyles.button}
+                onPress={() => addExerciseToLesson(exercise)}>
+                <Text style={generalStyles.buttonTitle}>Add Exercise</Text>
+            </TouchableOpacity>
           </View>
           </KeyboardAwareScrollView>
       </View>
@@ -282,6 +297,7 @@ const styles = StyleSheet.create({
     title: {
       // color: '#fff',
       fontSize: 16,
+      padding:10
     },
     pickerContainer: {
       flexDirection: 'row',

@@ -6,7 +6,7 @@ import * as Device from "expo-device";
 import { readBlobAsBase64 } from "./readBlobAsBase64";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { HebrewVowels } from "./hebrewVowels";
-import { HebrewLetters } from "./hebrewLetters";
+import { ashkenazify, HebrewLetters } from "./hebrewLetters";
 
 export const transcribeSpeech = async (
   audioRecordingRef: MutableRefObject<Audio.Recording>,
@@ -66,7 +66,6 @@ export const transcribeSpeech = async (
         }
         //type
         if (phrase) {
-          console.log(typeOfExercise)
           if(typeOfExercise == 'hebrewVowel') {
           const obj = HebrewVowels.find(o => o.Vowel == phrase);
           deData['prompt'] = `I am testing the pronounciation of syllable *${obj.English}*`;
@@ -84,6 +83,19 @@ export const transcribeSpeech = async (
             if(typeof obj.transliteration === 'string') {
               deData['prompt'] = `The hebrew letter is *${obj.transliteration}*`;
             }
+            
+          }
+
+          if(typeOfExercise == 'hebrewWord') {
+            const pronounciations = ashkenazify(phrase);
+            let prompt =` המילה היא `
+            pronounciations.forEach((word) => {
+              const wordWithoutVowels  = word.replace(/[ 'ׁ'ַ>ָ ֵ ֶ ִ ֹ ֻ ֱ ֲ ֳ ְ ּ]/g , '');
+              prompt += ` *${wordWithoutVowels}*`
+            })
+            console.log('prompt before call', prompt)
+            deData['prompt'] = prompt;
+            deData['languageCode'] = "he";
           }
         }
 

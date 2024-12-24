@@ -24,12 +24,26 @@ export interface classIdWithGroupId {
   // a board Id can contain different info for a board such as notices
   groupUid?: string;
 }
+export interface StudentExerciseStatus {
+  gottenWrong?: number,
+  status: 'incomplete' | 'done' | 'redo' 
+}
+
+export interface StudentExercise{
+  id: string,
+  description?: string,
+  subject?: string,
+  status?: StudentExerciseStatus,
+  gottenWrong?: Array<string>,
+}
 
 export interface Student extends User {
     firstName: string;
     lastName: string;
     teacherUids: Array<string>;
     classes: Array<classIdWithGroupId>;
+    exercises: Array<StudentExercise>;
+    points?: number;
   }
 
 export  interface Teacher extends User {

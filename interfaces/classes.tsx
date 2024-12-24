@@ -1,4 +1,4 @@
-interface Course {
+export interface Course {
     description?: {
       name?: string;
       instructor?: {
@@ -9,10 +9,11 @@ interface Course {
       }
     }
 }
+export const excerciseTypes = [{label: 'Hebrew Vowel', value: 'hebrewVowel'}, {label: 'Hebrew Letter', value: 'hebrewLetter'}, {label: 'Hebrew Word', value: 'hebrew word'}, {label: 'Type in text', value: 'text'}, , {label: 'Multiple choise', value: 'multiChoice'}]
 interface ExerciseType {
-  type: 'voice' | 'multiChoiceVoice' | 'multiChoice'
+  type: typeof excerciseTypes[number]['value']
 }
-interface Exercise {
+export interface Exercise {
     // info?: {
     //   name?: string;
     //   description?: string;
@@ -20,16 +21,20 @@ interface Exercise {
     //     name?: string;
     //   }
     // }
+    preStep?: Text;
+    description?: string;
     id?: string;
     stepId?: string;
     type?: string;
     language?: string;
     level?: string;
-    challenge?: string;
+    challenge?: string | Array<string>;
     options?:[];
     answer?: string;
+    postStep?: Text;
+
 }
-interface Step {
+export interface Step {
     description?: string;
     id?: string
     preStep?: {
@@ -44,7 +49,7 @@ interface Step {
       text?: string;
     }
 }
-interface Lesson {
+export interface Lesson {
   info?: {
     name?: string;
     description?: string;

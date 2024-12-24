@@ -1,19 +1,16 @@
-import { View, Text,  Button, StyleSheet, Platform, ActivityIndicator, TouchableOpacity  } from "react-native";
-// import styles from '../../../../assets/styles/login_styles';
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { View, Text, StyleSheet, Platform, ActivityIndicator, TouchableOpacity  } from "react-native";
 import { Audio } from 'expo-av';
 import { StatusBar } from 'expo-status-bar';
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react';
-import * as Sharing from 'expo-sharing';
 import { transcribeSpeech } from "../../../../utils/transcribeSpeech";
 import { recordSpeech } from "../../../../utils/recordSpeech";
 import { HebrewVowels } from "../../../../utils/hebrewVowels";
-import { HebrewLetters } from "../../../../utils/hebrewLetters";
+import { ashkenazify, HebrewLetters } from "../../../../utils/hebrewLetters";
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { jaroWinkler } from "../../../../utils/jaroWrinkler";
 
-export default function SpeechToText({ studentExercise, type }) {
-  const { stepId } = useLocalSearchParams();
-  const router = useRouter();
+export default function SpeechToText({ studentExercise, type, onComplete }) {
+
   const [recording, setRecording] = useState(null);
   const [recordings, setRecordings] = useState([]);
   const [message, setMessage] = useState("");
@@ -49,7 +46,10 @@ export default function SpeechToText({ studentExercise, type }) {
   //     }
   //   }
   // }, [isWebFocused]);
-  function incrementExcerse() {
+  function incrementExercise() {
+    if (currentChallengeNum >= (studentExercise.length -1)) {
+      onComplete(answers)
+    }
     setCurrentChallengeNum(currentChallengeNum + 1);
   }
 
@@ -61,6 +61,9 @@ export default function SpeechToText({ studentExercise, type }) {
     if(type == 'hebrewVowel') {
       const obj = HebrewVowels.find(o => o?.Vowel == phrase);
       return obj.English;
+    } 
+    if(type == 'hebrewWord') {
+      return phrase;
     }
   
 
@@ -164,10 +167,6 @@ export default function SpeechToText({ studentExercise, type }) {
       // });
       setRecordings(updatedRecordings);
       audioRecordingRef.current = new Audio.Recording();
-      // console.log('current challenge', getPathFromState(currentChallenge)?.toLowerCase())
-      // console.log('transcribedSpeech', speechTranscript?.toLowerCase())
-      // console.log('current challenge', getPathFromState(currentChallenge)?.toLowerCase() == speechTranscript?.toLowerCase())
-      //HebrewLetters
       let isCorrect;
       if(type == 'hebrewLetter') {
         if(Array.isArray(getPathFromState(currentChallenge))) {
@@ -184,12 +183,25 @@ export default function SpeechToText({ studentExercise, type }) {
 
       }
       if(type == 'hebrewVowel') {
-        isCorrect = speechTranscript?.toLowerCase().includes(getPathFromState(currentChallenge)?.toLowerCase())
+        isCorrect = speechTranscript?.toLowerCase().includes((getPathFromState(currentChallenge) as any)?.toLowerCase())
       }
-      setcorrectAnswer(isCorrect);
-      setAnswers([...answers, {num: currentChallengeNum, isCorrect: isCorrect }]);
-      incrementExcerse();
+      if(type == 'hebrewWord') {
+        (ashkenazify(currentChallenge)).forEach((word) => {
+          if(speechTranscript?.replace(/[ 'ׁ'ַ>ָ ֵ ֶ ִ ֹ ֻ ֱ ֲ ֳ ְ ּ]/g , '')?.includes(word?.replace(/[ 'ׁ'ַ>ָ ֵ ֶ ִ ֹ ֻ ֱ ֲ ֳ ְ ּ]/g , ''))) {
+            isCorrect = true;
+          }
+          // TODO: check if not correct already !isCorrect &&
+          if(jaroWinkler(word?.replace(/[ 'ׁ'ַ>ָ ֵ ֶ ִ ֹ ֻ ֱ ֲ ֳ ְ ּ]/g , ''),speechTranscript?.replace(/[ 'ׁ'ַ>ָ ֵ ֶ ִ ֹ ֻ ֱ ֲ ֳ ְ ּ]/g , '')) > 0.6) {
+            isCorrect = true;
+          }
+        });
+      }
+      setcorrectAnswer(!!isCorrect);
+      setAnswers([...answers, {currentChallenge: currentChallenge, isCorrect: isCorrect }]);
+      incrementExercise();
     } catch (e) {
+      setAnswers([...answers, {currentChallenge: currentChallenge, isCorrect: false }]);
+      incrementExercise();
       console.error(e);
     } finally {
       setIsTranscribing(false);
@@ -224,13 +236,13 @@ export default function SpeechToText({ studentExercise, type }) {
       {/* <Button
         title={recording ? 'Stop Recording' : 'Start Recording'}
         onPress={recording ? stopRecording : debouncedRecordOnPress} /> */}
-      <TouchableOpacity
+      {!isTranscribing && <TouchableOpacity
         onPress={recording? stopRecording : debouncedRecordOnPress}
         style={[ styles.recordButton, recording ? styles.recordingButton : styles.notRecordingButton,
         ]}>
         <Ionicons name={recording ? 'stop' : 'mic'} size={24} color="white"/>
-      </TouchableOpacity>
-      {currentChallengeNum != 0 && correctAnswer == null && !recording && <View style={{ paddingTop: 20 }}><ActivityIndicator size="large" /></View>}
+      </TouchableOpacity>}
+      {isTranscribing && <View style={{ paddingTop: 20 }}><ActivityIndicator size="large" /></View>}
       {correctAnswer != null && <Text style={{ fontSize: 50, color: 'green' }}>{correctAnswer ? 'You are correct': 'Try again'}</Text> }
 
       {/* {getRecordingLines()} */}
